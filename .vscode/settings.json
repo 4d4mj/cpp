@@ -1,5 +1,6 @@
 {
 	"files.associations": {
+		"*.embeddedhtml": "html",
 		"*.ejs": "html",
 		"algorithm": "cpp",
 		"atomic": "cpp",
@@ -54,6 +55,23 @@
 		"xstring": "cpp",
 		"xtr1common": "cpp",
 		"xutility": "cpp",
-		"fstream": "cpp"
+		"fstream": "cpp",
+		"array": "cpp",
+		"string_view": "cpp",
+		"span": "cpp",
+		"*.tcc": "cpp",
+		"charconv": "cpp",
+		"chrono": "cpp",
+		"cwctype": "cpp",
+		"deque": "cpp",
+		"set": "cpp",
+		"memory_resource": "cpp",
+		"numeric": "cpp",
+		"random": "cpp",
+		"ratio": "cpp",
+		"format": "cpp",
+		"numbers": "cpp",
+		"sstream": "cpp",
+		"variant": "cpp"
 	}
 }
