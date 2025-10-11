@@ -9,7 +9,15 @@ private:
 	const std::string target;
 
 public:
+	// Default constructor
+	PresidentialPardonForm();
+	// Parameterized constructor
 	PresidentialPardonForm(const std::string &target);
+	// Copy constructor
+	PresidentialPardonForm(const PresidentialPardonForm &other);
+	// Copy assignment operator
+	PresidentialPardonForm &operator=(const PresidentialPardonForm &other);
+	// Destructor
 	~PresidentialPardonForm();
 
 	void execute(Bureaucrat const &executor) const;

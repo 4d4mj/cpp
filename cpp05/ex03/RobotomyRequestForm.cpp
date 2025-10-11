@@ -1,9 +1,33 @@
 #include "RobotomyRequestForm.hpp"
 #include <iostream>
 
-RobotomyRequestForm::RobotomyRequestForm(const std::string &target)
-	: AForm("RobotomyRequestForm", 72, 45), target(target) {}
+// Default constructor: sets a default target
+RobotomyRequestForm::RobotomyRequestForm()
+	: AForm("RobotomyRequestForm", 72, 45), target("default_target")
+{}
 
+// Parameterized constructor
+RobotomyRequestForm::RobotomyRequestForm(const std::string &target)
+	: AForm("RobotomyRequestForm", 72, 45), target(target)
+{}
+
+// Copy constructor
+RobotomyRequestForm::RobotomyRequestForm(const RobotomyRequestForm &other)
+	: AForm(other), target(other.target)
+{}
+
+// Copy assignment operator
+RobotomyRequestForm &RobotomyRequestForm::operator=(const RobotomyRequestForm &other)
+{
+	if (this != &other)
+	{
+		AForm::operator=(other);
+		// 'target' is const and cannot be reassigned
+	}
+	return *this;
+}
+
+// Destructor
 RobotomyRequestForm::~RobotomyRequestForm() {}
 
 void RobotomyRequestForm::execute(Bureaucrat const &executor) const

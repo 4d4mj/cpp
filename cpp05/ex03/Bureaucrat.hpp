@@ -15,7 +15,15 @@ private:
     int grade;
 
 public:
+    // Default constructor
+    Bureaucrat();
+    // Parameterized constructor
     Bureaucrat(const std::string &name, int grade);
+    // Copy constructor
+    Bureaucrat(const Bureaucrat &other);
+    // Copy assignment operator
+    Bureaucrat &operator=(const Bureaucrat &other);
+    // Destructor
     ~Bureaucrat();
 
     const std::string &getName() const;

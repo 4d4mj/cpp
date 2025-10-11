@@ -10,7 +10,15 @@ private:
 	const std::string target;
 
 public:
+	// Default constructor
+	ShrubberyCreationForm();
+	// Parameterized constructor
 	ShrubberyCreationForm(const std::string &target);
+	// Copy constructor
+	ShrubberyCreationForm(const ShrubberyCreationForm &other);
+	// Copy assignment operator
+	ShrubberyCreationForm &operator=(const ShrubberyCreationForm &other);
+	// Destructor
 	~ShrubberyCreationForm();
 
 	void execute(Bureaucrat const &executor) const;

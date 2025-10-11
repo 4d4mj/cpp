@@ -17,7 +17,15 @@ private:
 	const int gradeRequiredToExecute;
 
 public:
+	// Default constructor
+	AForm();
+	// Parameterized constructor
 	AForm(const std::string &name, int gradeRequiredToSign, int gradeRequiredToExecute);
+	// Copy constructor
+	AForm(const AForm &other);
+	// Copy assignment operator
+	AForm &operator=(const AForm &other);
+	// Destructor
 	virtual ~AForm();
 
 	const std::string &getName() const;

@@ -1,8 +1,33 @@
 #include "ShrubberyCreationForm.hpp"
 
-ShrubberyCreationForm::ShrubberyCreationForm(const std::string &target)
-	: AForm("ShrubberyCreationForm", 145, 137), target(target) {}
+// Default constructor: sets a default target
+ShrubberyCreationForm::ShrubberyCreationForm()
+	: AForm("ShrubberyCreationForm", 145, 137), target("default_target")
+{}
 
+// Parameterized constructor
+ShrubberyCreationForm::ShrubberyCreationForm(const std::string &target)
+	: AForm("ShrubberyCreationForm", 145, 137), target(target)
+{}
+
+// Copy constructor
+ShrubberyCreationForm::ShrubberyCreationForm(const ShrubberyCreationForm &other)
+	: AForm(other), target(other.target)
+{}
+
+// Copy assignment operator
+ShrubberyCreationForm &ShrubberyCreationForm::operator=(const ShrubberyCreationForm &other)
+{
+	if (this != &other)
+	{
+		// Call base class assignment operator (this will update mutable members)
+		AForm::operator=(other);
+		// 'target' is const and cannot be reassigned
+	}
+	return *this;
+}
+
+// Destructor
 ShrubberyCreationForm::~ShrubberyCreationForm() {}
 
 void ShrubberyCreationForm::execute(Bureaucrat const &executor) const {

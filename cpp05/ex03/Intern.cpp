@@ -1,8 +1,21 @@
 #include "Intern.hpp"
 #include <iostream>
 
+// Default constructor
 Intern::Intern() {}
 
+// Copy constructor
+Intern::Intern(const Intern &other) {
+	(void)other; // Intern has no attributes to copy
+}
+
+// Copy assignment operator
+Intern &Intern::operator=(const Intern &other) {
+	(void)other; // Intern has no attributes to copy
+	return *this;
+}
+
+// Destructor
 Intern::~Intern() {}
 
 // Helper functions to create specific forms

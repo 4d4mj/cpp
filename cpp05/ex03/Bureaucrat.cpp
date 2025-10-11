@@ -1,5 +1,15 @@
 #include "Bureaucrat.hpp"
 
+// Default constructor: sets a default name and the lowest grade
+Bureaucrat::Bureaucrat() : name("Default"), grade(150)
+{
+	if (grade < 1)
+		throw GradeTooHighException();
+	if (grade > 150)
+		throw GradeTooLowException();
+}
+
+// Parameterized constructor
 Bureaucrat::Bureaucrat(const std::string &name, int grade) : name(name), grade(grade)
 {
 	if (grade < 1)
@@ -8,6 +18,24 @@ Bureaucrat::Bureaucrat(const std::string &name, int grade) : name(name), grade(g
 		throw GradeTooLowException();
 }
 
+// Copy constructor
+Bureaucrat::Bureaucrat(const Bureaucrat &other) : name(other.name), grade(other.grade)
+{
+	// The grade from 'other' is assumed valid
+}
+
+// Copy assignment operator
+Bureaucrat &Bureaucrat::operator=(const Bureaucrat &other)
+{
+	if (this != &other)
+	{
+		// 'name' is const and cannot be assigned after initialization
+		this->grade = other.grade;
+	}
+	return *this;
+}
+
+// Destructor
 Bureaucrat::~Bureaucrat() {}
 
 const std::string &Bureaucrat::getName() const

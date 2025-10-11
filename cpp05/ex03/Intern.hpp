@@ -10,7 +10,13 @@
 class Intern
 {
 public:
+	// Default constructor
 	Intern();
+	// Copy constructor
+	Intern(const Intern &other);
+	// Copy assignment operator
+	Intern &operator=(const Intern &other);
+	// Destructor
 	~Intern();
 
 	AForm *makeForm(const std::string &formName, const std::string &target);
