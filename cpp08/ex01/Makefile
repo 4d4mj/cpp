@@ -1,6 +1,6 @@
 NAME = ex01
 SRC = main.cpp Span.cpp
-CXX = g++
+CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
 all: $(NAME)

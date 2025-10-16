@@ -24,14 +24,19 @@ Base* generate(void)
 
 void identify(Base* p)
 {
+    if (p == NULL)
+    {
+        std::cout << "Unknown\n";
+        return;
+    }
     if (dynamic_cast<A*>(p) != NULL)
-        std::cout << "identify(*): A\n";
+        std::cout << "A\n";
     else if (dynamic_cast<B*>(p) != NULL)
-        std::cout << "identify(*): B\n";
+        std::cout << "B\n";
     else if (dynamic_cast<C*>(p) != NULL)
-        std::cout << "identify(*): C\n";
+        std::cout << "C\n";
     else
-        std::cout << "identify(*): Unknown\n";
+        std::cout << "Unknown\n";
 }
 
 // -- Using nested try/catch with catch(...) to avoid <typeinfo> --
@@ -41,7 +46,7 @@ void identify(Base& p)
     {
         A& a = dynamic_cast<A&>(p);
         (void)a; // silence unused var warning
-        std::cout << "identify(&): A\n";
+        std::cout << "A\n";
         return;
     }
     catch (...)
@@ -52,7 +57,7 @@ void identify(Base& p)
     {
         B& b = dynamic_cast<B&>(p);
         (void)b;
-        std::cout << "identify(&): B\n";
+        std::cout << "B\n";
         return;
     }
     catch (...)
@@ -63,14 +68,14 @@ void identify(Base& p)
     {
         C& c = dynamic_cast<C&>(p);
         (void)c;
-        std::cout << "identify(&): C\n";
+        std::cout << "C\n";
         return;
     }
     catch (...)
     {
         // Not C
     }
-    std::cout << "identify(&): Unknown\n";
+    std::cout << "Unknown\n";
 }
 
 int main()
