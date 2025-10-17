@@ -140,19 +140,19 @@ void renderInsertionLayout(const std::vector<Iterator> &mainChain,
   std::size_t elementWidth = maxWidth + 2;
 
   printSearchSpace(mainChain, boundExclusive, treatBoundAsInclusive, 1);
-  printBoundMarkers(mainChain, boundExclusive, 1, maxWidth);
-  printAvailabilityRow(mainChain, boundExclusive, treatBoundAsInclusive, 1, elementWidth);
+  printBoundMarkers(mainChain, boundExclusive, 2, maxWidth);
+  printAvailabilityRow(mainChain, boundExclusive, treatBoundAsInclusive, 2, elementWidth);
 
   if (showLegend)
   {
-    indentLevel(1);
+    indentLevel(2);
     indentAdditional(1);
     std::cout << "             (" << GREEN << "✓" << RESET << ") = searchable, ("
               << RED << "✗" << RESET << ") = not searchable" << std::endl;
   }
 
-  printInsertionArrow(insertionIndex, elementWidth, 1, arrowLabel);
-  printMainChainLine(mainChain, 1, maxWidth);
+  printInsertionArrow(insertionIndex, elementWidth, 2, arrowLabel);
+  printMainChainLine(mainChain, 2, maxWidth);
   std::cout << std::endl;
 }
 } // namespace print_detail

@@ -55,13 +55,18 @@ bool compareAndPrintPair(Iterator this_pair, Iterator next_pair)
 
   if (g_verbose)
   {
+    print_detail::indentLevel(1);
     if (result)
     {
-      DEBUG_PRINT("[" << GREEN << *this_pair << RESET << " > " << RED << *next_pair << RESET << "] ");
+      std::cout << YELLOW << "⚖️  Compare: " << RESET
+                << "[" << GREEN << *this_pair << RESET << " > " << RED << *next_pair << RESET << "] "
+                << YELLOW << "→ swap" << RESET << std::endl;
     }
     else
     {
-      DEBUG_PRINT("[" << RED << *this_pair << RESET << " < " << GREEN << *next_pair << RESET << "] ");
+      std::cout << YELLOW << "⚖️  Compare: " << RESET
+                << "[" << RED << *this_pair << RESET << " < " << GREEN << *next_pair << RESET << "] "
+                << GREEN << "→ keep" << RESET << std::endl;
     }
   }
 

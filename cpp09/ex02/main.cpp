@@ -80,32 +80,6 @@ static bool is_sorted(const T &container)
     return true;
 }
 
-static std::string argv_to_str(int argc, char **argv)
-{
-    std::string res("");
-    res.reserve(argc + 1);
-    res += "[";
-    res += argv[1];
-    for (int i = 2; argv[i]; i++)
-    {
-        res += " ";
-        res += argv[i];
-    }
-    res += "]";
-    return res;
-}
-
-static std::string vec_to_str(std::vector<int> &vec)
-{
-    std::stringstream ss;
-    ss << "[" << vec[0];
-    for (size_t i = 1; i < vec.size(); i++)
-    {
-        ss << " " << vec[i];
-    }
-    ss << "]";
-    return ss.str();
-}
 
 static bool retained_original_values(std::set<int> &original_values, std::vector<int> &vec)
 {
@@ -158,13 +132,11 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    std::cout << "\033[31mBefore\033[00m: " << argv_to_str(argc, argv) << "\n";
-    std::cout << "\033[32mAfter\033[00m:  " << vec_to_str(vec) << "\n";
-    std::cout << "Time to process a range of " << vec.size()
-              << " elements with std::vector: " << std::fixed << std::setprecision(6)
-              << time_elapsed_vec << "s\n";
-    std::cout << "Time to process a range of " << vec.size()
-              << " elements with std::deque:  " << std::fixed << std::setprecision(6)
-              << time_elapsed_deque << "s\n";
-    std::cout << "Number of comparisons: " << PmergeMe::nbr_of_comps << '\n';
+    std::vector<int> original_vec = argv_to_vector(argc, argv);
+
+    printResultHeader();
+    printBeforeAfter(original_vec, vec);
+    printTiming("std::vector", vec.size(), time_elapsed_vec);
+    printTiming("std::deque", deque.size(), time_elapsed_deque);
+    printComparisons(PmergeMe::nbr_of_comps);
 }

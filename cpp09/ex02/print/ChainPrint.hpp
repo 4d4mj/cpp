@@ -16,9 +16,13 @@ void printChains(const std::vector<Iterator> &mainChain, const std::vector<Itera
   if (!onlyPend)
   {
     if (useLabels)
-      DEBUG_PRINT("Main:" << std::endl);
-    print_detail::indentLevel(1);
-    print_detail::indentAdditional(1);
+    {
+      print_detail::indentLevel(1);
+      std::cout << BOLD << GREEN << "🏆 Winners (Main Chain):" << RESET << std::endl;
+    }
+    print_detail::indentLevel(useLabels ? 2 : 1);
+    if (!useLabels)
+      print_detail::indentAdditional(1);
     std::cout << "[";
     for (typename std::vector<Iterator>::const_iterator it = mainChain.begin(); it != mainChain.end(); ++it)
     {
@@ -32,11 +36,18 @@ void printChains(const std::vector<Iterator> &mainChain, const std::vector<Itera
   if (onlyMain)
     return;
 
+  if (!onlyMain && !onlyPend)
+    std::cout << std::endl;
+
   available = pendChain.size();
   if (useLabels)
-    DEBUG_PRINT("Pend:" << std::endl);
-  print_detail::indentLevel(1);
-  print_detail::indentAdditional(1);
+  {
+    print_detail::indentLevel(1);
+    std::cout << BOLD << RED << "📌 Losers (Pend Chain):" << RESET << std::endl;
+  }
+  print_detail::indentLevel(useLabels ? 2 : 1);
+  if (!useLabels)
+    print_detail::indentAdditional(1);
   std::cout << "[";
   for (typename std::vector<Iterator>::const_iterator it = pendChain.begin(); it != pendChain.end(); ++it)
   {

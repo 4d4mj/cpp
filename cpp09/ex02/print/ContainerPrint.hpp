@@ -27,9 +27,6 @@ void printContainerAsGroups(const Container &container, int groupSize, bool useC
     firstSorted = true;
   }
 
-  std::cout << std::endl
-            << std::endl;
-
   while (it != container.end())
   {
     int available = std::distance(it, container.end());
@@ -64,8 +61,33 @@ void printContainerAsGroups(const Container &container, int groupSize, bool useC
               << "]" << RESET << " ";
     groupIndex++;
   }
-  std::cout << std::endl
-            << std::endl;
+  std::cout << std::endl;
+}
+
+template <typename Container>
+void printAfterSwapping(const Container &container, int pair_level)
+{
+  if (!g_verbose)
+    return;
+
+  std::cout << std::endl;
+  print_detail::indentLevel(1);
+  std::cout << BOLD << GREEN << "✅ After swapping:" << RESET << std::endl;
+  print_detail::indentLevel(2);
+  printContainerAsGroups(container, pair_level);
+}
+
+template <typename Container>
+void printAfterMerging(const Container &container, int pair_level)
+{
+  if (!g_verbose)
+    return;
+
+  std::cout << std::endl;
+  print_detail::indentLevel(1);
+  std::cout << BOLD << CYAN << "🔄 Container after merging:" << RESET << std::endl;
+  print_detail::indentLevel(2);
+  printContainerAsGroups(container, pair_level, false);
 }
 
 template <typename Container>
@@ -86,15 +108,27 @@ void printRecursionLevel(int pair_units_nbr, bool is_odd, const Container &conta
     temp /= 2;
   }
   if (insertion)
-    printOneTime("================================================ Insertion Phase =================================================");
-  DEBUG_PRINT(std::endl
-              << "======================================== Recursion Level " << recursion_level + 1
-              << " (Pair Level " << pair_level << ") ======================================== " << std::endl);
+  {
+    std::cout << std::endl;
+    std::cout << BOLD << CYAN << "╔═════════════════════════════════════════════════════════════════════════════════╗" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "║                             🎯 INSERTION PHASE                                  ║" << RESET << std::endl;
+    std::cout << BOLD << CYAN << "╚═════════════════════════════════════════════════════════════════════════════════╝" << RESET << std::endl;
+  }
 
-  DEBUG_PRINT(pair_units_nbr << " elements before sorting"
-                             << (is_odd ? " (odd)" : " (even)"));
+  std::cout << std::endl;
+  std::cout << BOLD << BLUE << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << RESET << std::endl;
+  std::cout << BOLD << BLUE << "→ Recursion Level " << recursion_level + 1
+            << " (Pair Level " << pair_level << ")" << RESET << std::endl;
+  std::cout << BOLD << BLUE << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << RESET << std::endl;
 
+  print_detail::indentLevel(1);
+  std::cout << YELLOW << "📊 Status: " << RESET << pair_units_nbr << " elements"
+            << (is_odd ? " " + std::string(MAGENTA) + "(odd)" + std::string(RESET) : " " + std::string(BLUE) + "(even)" + std::string(RESET))
+            << std::endl << std::endl;
+
+  print_detail::indentLevel(2);
   printContainerAsGroups(container, pair_level, useColor);
+  std::cout << std::endl;
 }
 
 #endif // CONTAINER_PRINT_HPP

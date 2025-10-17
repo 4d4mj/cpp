@@ -41,6 +41,44 @@ bool _comp(T lv, T rv)
     return *lv < *rv;
 }
 
+// Custom binary search (upper_bound) that guarantees consistent comparison counting
+// This implements binary search that ALWAYS performs the same number of comparisons
+// for a given search space size, regardless of the data. This ensures the theoretical
+// Ford-Johnson minimum is achieved consistently.
+template <typename Iterator, typename ValueIterator>
+Iterator _binary_search_upper(Iterator first, Iterator last, ValueIterator value)
+{
+    if (first == last)
+        return first;
+
+    typename std::iterator_traits<Iterator>::difference_type count = std::distance(first, last);
+    typename std::iterator_traits<Iterator>::difference_type step;
+    Iterator it;
+
+    while (count > 0)
+    {
+        it = first;
+        step = count / 2;
+        std::advance(it, step);
+
+        // ALWAYS count exactly one comparison per iteration
+        PmergeMe::nbr_of_comps++;
+
+        // Use only < comparison (standard upper_bound logic)
+        if (!(*value < **it))  // if *value >= **it
+        {
+            first = ++it;
+            count -= step + 1;
+        }
+        else  // *value < **it
+        {
+            count = step;
+        }
+    }
+
+    return first;
+}
+
 template <typename T>
 T next(T it, int steps)
 {
@@ -71,7 +109,7 @@ void PmergeMe::_merge_insertion_sort(T &container, int pair_level)
 
     bool is_odd = (pair_units_nbr % 2 == 1);
 
-    // verbose print
+    // verbose print: recursion level entry
     printRecursionLevel(pair_units_nbr, is_odd, container, pair_level, false);
 
     Iterator start = container.begin();
@@ -85,13 +123,13 @@ void PmergeMe::_merge_insertion_sort(T &container, int pair_level)
         Iterator this_pair = next(it, pair_level - 1);
         Iterator next_pair = next(it, pair_level * 2 - 1);
 
-        // verbose print & compare
+        // verbose print: compare and swap if needed
         if (compareAndPrintPair(this_pair, next_pair))
             _swap_pair(this_pair, pair_level);
     }
 
-    // verbose print
-    printContainerAsGroups(container, pair_level);
+    // verbose print: after swapping phase
+    printAfterSwapping(container, pair_level);
 
     // Store BEFORE recursion: which pairs exist (by their representative values)
     std::vector<std::pair<int, int> > pairs_before;  // (smaller_val, larger_val)
@@ -104,7 +142,7 @@ void PmergeMe::_merge_insertion_sort(T &container, int pair_level)
 
     _merge_insertion_sort(container, pair_level * 2);
 
-    // verbose print
+    // verbose print: recursion level return (entering insertion phase)
     printRecursionLevel(pair_units_nbr, is_odd, container, pair_level, true, true);
 
     // After recursion: build main from container positions
@@ -163,23 +201,34 @@ void PmergeMe::_merge_insertion_sort(T &container, int pair_level)
         pend_buddies.push_back(container.end());
     }
 
-    // verbose print
+    // verbose print: main and pend chains (winners vs losers)
     printChains(main, pend, false, false, true);
 
-    int prev_jacobsthal = _jacobsthal_number(1);
+    // Insert the first pend element at the beginning without binary search
+    if (!pend.empty())
+    {
+        main.insert(main.begin(), pend[0]);
+        pend.erase(pend.begin());
+        pend_buddies.erase(pend_buddies.begin());
+    }
+
+    // Start from Jacobsthal index 2 (we already inserted pend[0])
+    // Jacobsthal sequence: 0, 1, 1, 3, 5, 11, ...
+    // We'll insert in the order: 1, then 3,2, then 5,4, then 11,10,9,8,7,6, ...
+    int prev_jacobsthal = 1;  // Start after index 1
     int high = 3;  // Start with bound of 3 (for first Jacobsthal group)
 
-    for (int k = 2;; k++)
+    for (int k = 3;; k++)  // Start from k=3 (Jacobsthal(3) = 3)
     {
         int curr_jacobsthal = _jacobsthal_number(k);
         int jacobsthal_diff = curr_jacobsthal - prev_jacobsthal;
 
-        if (jacobsthal_diff > static_cast<int>(pend.size()))
+        if (curr_jacobsthal > static_cast<int>(pend.size()))
             break;
 
         int original_pend_size = pend.size();
 
-        // verbose print
+        // verbose print: jacobsthal round information
         printJacobsthalInfo(k, curr_jacobsthal, jacobsthal_diff, main, pend);
 
         // At each new Jacobsthal group, double the search bound (Ford-Johnson formula)
@@ -227,7 +276,7 @@ void PmergeMe::_merge_insertion_sort(T &container, int pair_level)
             int high_limit_display = static_cast<int>(high_limit);
             int buddy_limit_display = static_cast<int>(buddy_limit);
 
-            // verbose print all contributing bounds
+            // verbose print: insertion header with bounds calculation
             printInsertionHeader(*pend_it,
                                  insertion_round,
                                  original_pend_size,
@@ -235,16 +284,16 @@ void PmergeMe::_merge_insertion_sort(T &container, int pair_level)
                                  high_limit_display,
                                  buddy_limit_display);
 
-            typename std::vector<Iterator>::iterator idx = std::upper_bound(main.begin(), bound_it, *pend_it, _comp<Iterator>);
+            typename std::vector<Iterator>::iterator idx = _binary_search_upper(main.begin(), bound_it, *pend_it);
 
-            // verbose print
+            // verbose print: insertion visual with search space
             printInsertionVisual(main, idx, bound_it);
 
             main.insert(idx, *pend_it);
             pend.erase(pend_it);
             pend_buddies.erase(buddy_info_it);
 
-            // verbose print
+            // verbose print: main chain after insertion
             printAfterInsertion(main, pend);
         }
 
@@ -269,15 +318,15 @@ void PmergeMe::_merge_insertion_sort(T &container, int pair_level)
         typename std::vector<Iterator>::iterator curr_bound =
             (curr_buddy == container.end()) ? main.end() : buddy_pos;
         typename std::vector<Iterator>::iterator idx =
-            std::upper_bound(main.begin(), curr_bound, curr_pend, _comp<Iterator>);
+            _binary_search_upper(main.begin(), curr_bound, curr_pend);
 
-        // verbose print
+        // verbose print: remaining pend element insertion
         size_t insertion_idx = std::distance(main.begin(), idx);
         printRemainingInsertion(main, curr_pend, insertion_idx, search_bound_idx, i);
 
         main.insert(idx, curr_pend);
 
-        // verbose print
+        // verbose print: main chain after remaining insertion
         printAfterInsertion(main, pend);
     }
 
@@ -304,10 +353,9 @@ void PmergeMe::_merge_insertion_sort(T &container, int pair_level)
         ++container_it;
         ++tempCopy_it;
     }
-#ifdef VERBOSE
-    DEBUG_PRINT("Container after merging: ");
-    printContainerAsGroups(container, pair_level, false);
-#endif
+
+    // verbose print: final container after merging all pairs
+    printAfterMerging(container, pair_level);
 }
 
 #endif

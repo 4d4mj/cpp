@@ -8,5 +8,6 @@
 #include "ChainPrint.hpp"
 #include "InsertionPrint.hpp"
 #include "JacobsthalPrint.hpp"
+#include "ResultPrint.hpp"
 
 #endif // PRINT_HPP
