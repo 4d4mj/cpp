@@ -203,7 +203,12 @@ void printAfterInsertion(const std::vector<Iterator> &mainChain, const std::vect
 }
 
 template <typename Iterator>
-void printInsertionHeader(const Iterator &pendElement, int pendIndex, int originalPendSize, int searchLimit, int curr_jacobsthal, int already_inserted)
+void printInsertionHeader(const Iterator &pendElement,
+                          int pendIndex,
+                          int originalPendSize,
+                          int searchLimit,
+                          int jacob_bound,
+                          int buddy_bound)
 {
   if (!g_verbose)
     return;
@@ -215,8 +220,10 @@ void printInsertionHeader(const Iterator &pendElement, int pendIndex, int origin
   std::cout << BOLD << MAGENTA << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << RESET << std::endl;
 
   std::cout << YELLOW << "  🎯 Search Bound Calculation:" << RESET << std::endl;
-  std::cout << "     Formula:     J(k) + already_inserted - 1" << std::endl;
-  std::cout << "     Calculation: " << curr_jacobsthal << " + " << already_inserted << " - 1 = " << BOLD << searchLimit << RESET << std::endl;
+  std::cout << "     Jacobsthal bound (high - 1):       " << jacob_bound << "  [high sequence: 3→7→15→31→…]" << std::endl;
+  std::cout << "     Partner bound (stay before buddy): " << buddy_bound << std::endl;
+  std::cout << "     Effective upper index:             min(" << jacob_bound << ", " << buddy_bound << ") = "
+            << BOLD << searchLimit << RESET << std::endl;
   std::cout << std::endl;
 }
 
