@@ -7,7 +7,7 @@
 #include <iterator>
 #include <cmath>
 #include <cstdlib>
-#include "PrintUtils.hpp"
+#include "print/Print.hpp"
 
 extern bool g_verbose;
 
@@ -160,11 +160,7 @@ void PmergeMe::_merge_insertion_sort(T &container, int pair_level)
             inserted_numbers++;
 
             // verbose print
-            if (g_verbose)
-            {
-                std::cout << "  After insertion:" << std::endl << "  ";
-                printChains(main, pend, true);
-            }
+            printAfterInsertion(main, pend);
         }
 
         prev_jacobsthal = curr_jacobsthal;
@@ -182,9 +178,12 @@ void PmergeMe::_merge_insertion_sort(T &container, int pair_level)
 
         // verbose print
         size_t insertion_idx = std::distance(main.begin(), idx);
+        printRemainingInsertion(main, *curr_pend, insertion_idx, search_bound_idx, i);
 
         main.insert(idx, *curr_pend);
-        printRemainingInsertion(main, *curr_pend, insertion_idx, search_bound_idx - 1, i, remaining_pend_size, is_odd);
+
+        // verbose print
+        printAfterInsertion(main, pend);
     }
 
     std::vector<int> tempCopy;
