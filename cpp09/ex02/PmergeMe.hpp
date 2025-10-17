@@ -123,50 +123,68 @@ void PmergeMe::_merge_insertion_sort(T &container, int pair_level)
     {
         int curr_jacobsthal = _jacobsthal_number(k);
         int jacobsthal_diff = curr_jacobsthal - prev_jacobsthal;
-        int offset = 0;
+
         if (jacobsthal_diff > static_cast<int>(pend.size()))
-        break;
-        int nbr_of_times = jacobsthal_diff;
-        typename std::vector<Iterator>::iterator pend_it = next(pend.begin(), jacobsthal_diff - 1);
-        typename std::vector<Iterator>::iterator bound_it =
-        next(main.begin(), curr_jacobsthal + inserted_numbers);
+            break;
+
+        int original_pend_size = pend.size();
 
         // verbose print
         printJacobsthalInfo(k, curr_jacobsthal, jacobsthal_diff, main, pend);
 
-        while (nbr_of_times)
+        // Insert in reverse order: from position (jacobsthal_diff - 1) down to 0
+        for (int insertion_round = jacobsthal_diff - 1; insertion_round >= 0; --insertion_round)
         {
+            if (insertion_round >= static_cast<int>(pend.size()))
+                continue;
+
+            typename std::vector<Iterator>::iterator pend_it = next(pend.begin(), insertion_round);
+
+            // Calculate search bound: we can search up to curr_jacobsthal + already_inserted - 1
+            int search_limit = curr_jacobsthal + inserted_numbers - 1;
+            if (search_limit >= static_cast<int>(main.size()))
+                search_limit = main.size() - 1;
+
+            typename std::vector<Iterator>::iterator bound_it = next(main.begin(), search_limit + 1);
+
+            // verbose print
+            printInsertionHeader(*pend_it, insertion_round, original_pend_size, search_limit, curr_jacobsthal, inserted_numbers);
+
             typename std::vector<Iterator>::iterator idx = std::upper_bound(main.begin(), bound_it, *pend_it, _comp<Iterator>);
 
             // verbose print
-            printInsertionVisual(main, idx);
-            typename std::vector<Iterator>::iterator inserted = main.insert(idx, *pend_it);
-            nbr_of_times--;
-            pend_it = pend.erase(pend_it);
-            std::advance(pend_it, -1);
-            offset += (inserted - main.begin()) == (curr_jacobsthal + inserted_numbers);
-            bound_it = next(main.begin(), curr_jacobsthal + inserted_numbers - offset);
+            printInsertionVisual(main, idx, bound_it);
+
+            main.insert(idx, *pend_it);
+            pend.erase(pend_it);
+            inserted_numbers++;
 
             // verbose print
-            printChains(main, pend, true);
+            if (g_verbose)
+            {
+                std::cout << "  After insertion:" << std::endl << "  ";
+                printChains(main, pend, true);
+            }
         }
+
         prev_jacobsthal = curr_jacobsthal;
-        inserted_numbers += jacobsthal_diff;
-        offset = 0;
     }
 
-    for (size_t i = 0; i < pend.size(); i++)
+    size_t remaining_pend_size = pend.size();
+    for (size_t i = 0; i < remaining_pend_size; i++)
     {
         typename std::vector<Iterator>::iterator curr_pend = next(pend.begin(), i);
+        size_t search_bound_idx = main.size() - remaining_pend_size + i + is_odd;
         typename std::vector<Iterator>::iterator curr_bound =
-            next(main.begin(), main.size() - pend.size() + i + is_odd);
+            next(main.begin(), search_bound_idx);
         typename std::vector<Iterator>::iterator idx =
             std::upper_bound(main.begin(), curr_bound, *curr_pend, _comp<Iterator>);
 
         // verbose print
+        size_t insertion_idx = std::distance(main.begin(), idx);
 
         main.insert(idx, *curr_pend);
-        printRemainingInsertion(main, *curr_pend, std::distance(main.begin(), idx));
+        printRemainingInsertion(main, *curr_pend, insertion_idx, search_bound_idx - 1, i, remaining_pend_size, is_odd);
     }
 
     std::vector<int> tempCopy;

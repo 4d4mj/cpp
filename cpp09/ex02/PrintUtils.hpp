@@ -22,6 +22,8 @@
 template <typename T>
 bool _comp(T lv, T rv);
 
+long _jacobsthal_number(long n);
+
 extern bool g_verbose;
 
 #define DEBUG_PRINT(x) \
@@ -157,15 +159,14 @@ void printChains(const std::vector<Iterator> &mainChain, const std::vector<Itera
   {
     if (useLabels)
       DEBUG_PRINT("Main:" << std::endl);
-    std::cout << "[";
+    std::cout << "   [";
     for (typename std::vector<Iterator>::const_iterator it = mainChain.begin(); it != mainChain.end(); ++it)
     {
       bool incomplete = (--available == 0);
       std::cout << GREEN << **it << RESET;
       std::cout << (incomplete ? "" : ", ");
     }
-    std::cout << "]" << std::endl
-              << std::endl;
+    std::cout << "]" << std::endl;
   }
 
   if (onlyMain)
@@ -174,15 +175,14 @@ void printChains(const std::vector<Iterator> &mainChain, const std::vector<Itera
   available = pendChain.size();
   if (useLabels)
     DEBUG_PRINT("Pend:" << std::endl);
-  std::cout << "[";
+  std::cout << "   [";
   for (typename std::vector<Iterator>::const_iterator it = pendChain.begin(); it != pendChain.end(); ++it)
   {
     bool incomplete = (--available == 0);
     std::cout << RED << **it << RESET;
     std::cout << (incomplete ? "" : ", ");
   }
-  std::cout << "]" << std::endl
-            << std::endl;
+  std::cout << "]" << std::endl;
 }
 
 // Determine the maximum width needed for your numbers
@@ -200,70 +200,185 @@ size_t getMaxWidth(const std::vector<Iterator> &mainChain)
 }
 
 template <typename Iterator>
-void printInsertionVisual(const std::vector<Iterator> &mainChain, typename std::vector<Iterator>::const_iterator idx)
+void printInsertionVisual(const std::vector<Iterator> &mainChain, typename std::vector<Iterator>::const_iterator idx, typename std::vector<Iterator>::const_iterator searchBound)
 {
   if (!g_verbose)
     return;
 
   size_t maxWidth = getMaxWidth(mainChain);
-  // Calculate total fixed-width for each element including a comma and space if needed.
-  // Adjust spacing if you have different delimiters.
   size_t elementWidth = maxWidth + 2;
 
-  // Determine the insertion index in terms of fixed width units
-  size_t insertion_index = std::distance(mainChain.begin(), idx) * elementWidth;
-  for (size_t i = 0; i < insertion_index; ++i)
-    std::cout << " "; // adjust spacing as needed
-  std::cout << YELLOW << "|" << RESET << std::endl;
+  // Show the search space (searchBound is one past the last element to search)
+  size_t searchBoundIdx = std::distance(mainChain.begin(), searchBound);
+  std::cout << "  " << BLUE << "🔍 Search space: " << RESET << "Main[0.." << (searchBoundIdx > 0 ? searchBoundIdx - 1 : 0) << "] = [";
+  for (size_t i = 0; i < searchBoundIdx && i < mainChain.size(); ++i)
+  {
+    typename std::vector<Iterator>::const_iterator temp = mainChain.begin();
+    std::advance(temp, i);
+    std::cout << **temp;
+    if (i < searchBoundIdx - 1)
+      std::cout << ", ";
+  }
+  std::cout << "]" << std::endl;
 
-  std::cout << CYAN << "[";
+  // Print position markers above the array showing search bound
+  // Account for opening bracket "["
+  std::cout << "  ";  // 2 spaces for "  " before bracket, 1 for "["
+  for (size_t i = 0; i < mainChain.size(); ++i)
+  {
+    if (i == searchBoundIdx)
+      std::cout << std::setw(maxWidth) << RED << "|" << RESET;
+    else
+      std::cout << std::setw(maxWidth) << " ";
+    if (i < mainChain.size() - 1)
+      std::cout << "  ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "   ";
+  for (size_t i = 0; i < mainChain.size(); ++i)
+  {
+    if (i < searchBoundIdx)
+      std::cout << GREEN << std::setw(elementWidth) << "✓" << RESET;
+    else
+      std::cout << RED << std::setw(elementWidth) << "✗" << RESET;
+    if (i < mainChain.size() - 1)
+      std::cout << "  ";
+  }
+  std::cout << std::endl;
+
+  // Show insertion point
+  size_t insertion_index = std::distance(mainChain.begin(), idx) * elementWidth;
+  std::cout << "  ";
+  for (size_t i = 0; i < insertion_index; ++i)
+    std::cout << " ";
+  std::cout << YELLOW << "↓ insert here" << RESET << std::endl;
+
+  std::cout << "  " << CYAN << "[";
   int available = mainChain.size();
   for (typename std::vector<Iterator>::const_iterator it = mainChain.begin(); it != mainChain.end(); ++it)
   {
     bool incomplete = (--available == 0);
-    // Print the number in a fixed-width field.
     std::cout << std::setw(maxWidth) << **it;
     std::cout << (incomplete ? "" : ", ");
   }
-  std::cout << "]" << RESET
-            << std::endl;
+  std::cout << "]" << RESET << std::endl << std::endl;
 }
 
 template <typename Iterator>
-void printRemainingInsertion(const std::vector<Iterator> &mainChain, const Iterator &currPend, size_t insertionIndex)
+void printRemainingInsertion(const std::vector<Iterator> &mainChain, const Iterator &currPend, size_t insertionIndex, size_t searchBoundIdx, size_t pendIdx, size_t remainingPendSize, bool isOdd)
 {
   if (!g_verbose)
     return;
-  // Note: currPend is now expected to be the element (Iterator) stored in the vector.
-  DEBUG_PRINT("Inserting remaining pend value " << *(currPend)
-                                                << " into main chain at position " << insertionIndex << std::endl);
-  DEBUG_PRINT("After remaining insertion loop, main chain:" << std::endl);
 
+  std::cout << CYAN << "\n╔═════════════════════════════════════════════════════════════════════════════════╗" << RESET << std::endl;
+  std::cout << CYAN << "║ " << RESET << YELLOW << BOLD << "Inserting Leftover Elements" << RESET << CYAN << "                                                  ║" << RESET << std::endl;
+  std::cout << CYAN << "╚═════════════════════════════════════════════════════════════════════════════════╝" << RESET << std::endl;
+
+  std::cout << MAGENTA << "→ Inserting remaining pend[" << pendIdx << "]=" << *(currPend) << RESET << std::endl;
+  std::cout << std::endl;
+
+  std::cout << YELLOW << "  🎯 Search Bound Calculation for Leftover:" << RESET << std::endl;
+  std::cout << "     Formula: main.size() - remaining_pend.size() + current_index + is_odd" << std::endl;
+  std::cout << "     Calculation: " << mainChain.size() << " - " << remainingPendSize << " + " << pendIdx << " + " << (isOdd ? 1 : 0) << " = " << BOLD << searchBoundIdx << RESET << std::endl;
+  std::cout << "     This ensures each leftover element searches an expanding window" << std::endl;
+  std::cout << "     to maintain optimal binary search performance." << std::endl;
+  std::cout << std::endl;
+
+  // Show search space
+  std::cout << "  " << BLUE << "🔍 Search space: " << RESET << "Main[0.." << searchBoundIdx << "]" << std::endl;
+
+  size_t maxWidth = getMaxWidth(mainChain);
+
+  // Print position markers above the array showing search bound
+  // Account for opening bracket "["
+  std::cout << "   ";  // 2 spaces for "  " before bracket, 1 for "["
+  for (size_t i = 0; i < mainChain.size(); ++i)
+  {
+    if (i == searchBoundIdx + 1)
+      std::cout << std::setw(maxWidth) << RED << "|" << RESET;
+    else
+      std::cout << std::setw(maxWidth) << " ";
+    if (i < mainChain.size() - 1)
+      std::cout << ", ";  // match the ", " spacing in the array
+  }
+  std::cout << std::endl;
+
+  std::cout << "   ";  // 2 spaces for "  " before bracket, 1 for "["
+  for (size_t i = 0; i < mainChain.size(); ++i)
+  {
+    if (i <= searchBoundIdx)
+      std::cout << std::setw(maxWidth) << GREEN << "✓" << RESET;
+    else
+      std::cout << std::setw(maxWidth) << RED << "✗" << RESET;
+    if (i < mainChain.size() - 1)
+      std::cout << ", ";  // match the ", " spacing in the array
+  }
+  std::cout << "             (" << GREEN << "✓" << RESET << ") = searchable, (" << RED << "✗" << RESET << ") = not searchable" << std::endl;
+
+  // Show insertion point
+  size_t elementWidth = maxWidth + 2;
+  size_t insertion_visual_index = insertionIndex * elementWidth;
+  std::cout << "  ";
+  for (size_t i = 0; i < insertion_visual_index; ++i)
+    std::cout << " ";
+  std::cout << YELLOW << "↓ insert here" << RESET << std::endl;
+
+  // Show the main chain array
+  std::cout << "  " << CYAN << "[";
   typedef typename std::vector<Iterator>::const_iterator const_iter;
+  int available = mainChain.size();
   for (const_iter it = mainChain.begin(); it != mainChain.end(); ++it)
-    std::cout << *(*it) << " "; // Dereference once: *it gives the Iterator, then * gives the value.
+  {
+    bool incomplete = (--available == 0);
+    std::cout << std::setw(maxWidth) << *(*it);
+    std::cout << (incomplete ? "" : ", ");
+  }
+  std::cout << "]" << RESET << std::endl;
+
+  DEBUG_PRINT("  After insertion at position " << insertionIndex << ", main chain:" << std::endl << "  ");
+
+  for (const_iter it = mainChain.begin(); it != mainChain.end(); ++it)
+    std::cout << *(*it) << " ";
   std::cout << std::endl;
 }
 
 template <typename Iterator>
 void printJacobsthalInfo(int k, int curr_jacobsthal, int jacobsthal_diff, const std::vector<Iterator> &main, const std::vector<Iterator> &pend)
 {
-  DEBUG_PRINT("Jacobsthal number for k = " << k
-                                           << " is " << curr_jacobsthal
-                                           << std::endl);
+  if (!g_verbose)
+    return;
 
-  printChains(main, pend, false, true);
-  
-  DEBUG_PRINT("diff = j(" << k << ") - j(" << k - 1 << ") = ["
-                   << YELLOW << jacobsthal_diff
-                   << RESET
-                   << "], means "
-                   << YELLOW
-                   << jacobsthal_diff
-                   << " insertions"
-                   << RESET
-                   << std::endl
-                   << std::endl);
+  std::cout << CYAN << "\n╔═════════════════════════════════════════════════════════════════════════════════╗" << RESET << std::endl;
+  std::cout << CYAN << "║ " << RESET << YELLOW << BOLD << "Jacobsthal Round k=" << k << RESET << " / J(k) - J(k-1) ≤ pend.size() (current pend: " << pend.size() << ")" << CYAN << "            ║" << RESET << std::endl;
+  std::cout << CYAN << "╚═════════════════════════════════════════════════════════════════════════════════╝" << RESET << std::endl;
+
+  // Explain the insertion count formula
+  std::cout << MAGENTA << "🔢 Insertion Count Formula:" << RESET << std::endl;
+  std::cout << "   " << BOLD << curr_jacobsthal << " - " << _jacobsthal_number(k-1) << " = "
+            << jacobsthal_diff << " insertion" << (jacobsthal_diff > 1 ? "s" : "") << RESET << std::endl;
+  std::cout << std::endl;
+
+  DEBUG_PRINT(YELLOW << "📋 Pend elements to insert this round (in reverse order):" << RESET << std::endl);
+  printChains(main, pend, false, true, false);
+}
+
+template <typename Iterator>
+void printInsertionHeader(const Iterator &pendElement, int pendIndex, int originalPendSize, int searchLimit, int curr_jacobsthal, int already_inserted)
+{
+  if (!g_verbose)
+    return;
+
+  std::cout << BOLD << MAGENTA << "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << RESET << std::endl;
+  std::cout << BOLD << MAGENTA << "→ Inserting pend[" << pendIndex
+            << "]=" << *pendElement << RESET << " (originally position " << originalPendSize - pendIndex - 1 << " from end)"
+            << std::endl;
+  std::cout << BOLD << MAGENTA << "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" << RESET << std::endl;
+
+  std::cout << YELLOW << "  🎯 Search Bound Calculation:" << RESET << std::endl;
+  std::cout << "     Formula:     J(k) + already_inserted - 1" << std::endl;
+  std::cout << "     Calculation: " << curr_jacobsthal << " + " << already_inserted << " - 1 = " << BOLD << searchLimit << RESET << std::endl;
+  std::cout << std::endl;
 }
 
 #endif // PRINT_UTILS_HPP
