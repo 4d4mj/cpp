@@ -1,13 +1,18 @@
 NAME = PmergeMe
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
-SRCS = main.cpp PmergeMe.cpp print/PrintHelpers.cpp
+SRCS = main.cpp \
+       PmergeMe.cpp \
+       utils/Jacobsthal.cpp \
+       utils/InputParser.cpp \
+       utils/Validator.cpp \
+       vector/VectorElement.cpp \
+       vector/VectorSort.cpp \
+       deque/DequeElement.cpp \
+       deque/DequeSort.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 all: $(NAME)
-
-verbose:
-	$(CXX) $(CXXFLAGS) -DVERBOSE $(SRCS) -o $(NAME)
 
 $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)

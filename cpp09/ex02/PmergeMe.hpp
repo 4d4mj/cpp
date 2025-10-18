@@ -3,9 +3,6 @@
 
 #include <deque>
 #include <vector>
-#include "print/Print.hpp"
-
-extern bool g_verbose;
 
 class PmergeMe
 {
@@ -15,19 +12,14 @@ public:
     PmergeMe &operator=(const PmergeMe &pm);
     ~PmergeMe();
 
-    void sort_vec(std::vector<int> &vec);
-    void sort_deque(std::deque<int> &deq);
+    // Sort a vector using Ford-Johnson algorithm
+    void sortVector(std::vector<int> &vec);
 
-    static int nbr_of_comps;
+    // Sort a deque using Ford-Johnson algorithm
+    void sortDeque(std::deque<int> &deq);
+
+    // Static comparison counter
+    static int nbrOfComparisons;
 };
-
-long _jacobsthal_number(long n);
-
-template <typename T>
-bool _comp(T lv, T rv)
-{
-    PmergeMe::nbr_of_comps++;
-    return *lv < *rv;
-}
 
 #endif

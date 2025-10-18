@@ -92,9 +92,9 @@ std::string vec_to_string(const std::vector<int>& vec) {
 // Run a single test and return the number of comparisons
 int run_test(std::vector<int> input) {
     PmergeMe pm;
-    PmergeMe::nbr_of_comps = 0;
-    pm.sort_vec(input);
-    return PmergeMe::nbr_of_comps;
+    PmergeMe::nbrOfComparisons = 0;
+    pm.sortVector(input);
+    return PmergeMe::nbrOfComparisons;
 }
 
 void print_histogram(const std::map<int, int>& comp_counts, int total_tests) {
