@@ -6,7 +6,7 @@ TARGET = test_comparisons
 SRCS = test_comparisons.cpp \
        ../PmergeMe.cpp \
        ../utils/Jacobsthal.cpp \
-       ../utils/InputParser.cpp \
+       ../utils/Parser.cpp \
        ../utils/Validator.cpp \
        ../vector/VectorElement.cpp \
        ../vector/VectorSort.cpp \

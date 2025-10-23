@@ -4,7 +4,7 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 SRCS = main.cpp \
        PmergeMe.cpp \
        utils/Jacobsthal.cpp \
-       utils/InputParser.cpp \
+       utils/Parser.cpp \
        utils/Validator.cpp \
        vector/VectorElement.cpp \
        vector/VectorSort.cpp \

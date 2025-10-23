@@ -1,6 +1,6 @@
 #include "PmergeMe.hpp"
 #include "print/Print.hpp"
-#include "utils/InputParser.hpp"
+#include "utils/Parser.hpp"
 #include "utils/Validator.hpp"
 #include <iostream>
 #include <cstdlib>
@@ -50,7 +50,6 @@ int main(int argc, char **argv)
     }
 
     // Display results
-    printResultHeader();
     printBeforeAfter(originalVec, vec);
     printTiming("std::vector", vec.size(), timeElapsedVec);
     printTiming("std::deque", deque.size(), timeElapsedDeque);

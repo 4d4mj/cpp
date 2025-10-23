@@ -1,10 +1,10 @@
-#include "InputParser.hpp"
+#include "Parser.hpp"
 #include <cerrno>
 #include <climits>
 #include <cstdlib>
 
 // Validate a single argument
-static std::string validateSingleArg(const std::string &arg)
+static std::string validateArg(const std::string &arg)
 {
     if (arg[0] == '-')
         return "Negative numbers are not allowed";
@@ -26,7 +26,7 @@ std::string validateArgs(int argc, char **argv)
 
     for (int i = 1; i < argc; i++)
     {
-        std::string status = validateSingleArg(argv[i]);
+        std::string status = validateArg(argv[i]);
         if (status != "")
             return status;
     }
